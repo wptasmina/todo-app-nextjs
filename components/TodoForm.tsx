@@ -1,3 +1,4 @@
+// components/TodoForm.tsx
 'use client'
 
 import { useState } from 'react'
@@ -10,33 +11,32 @@ export default function TodoForm() {
   const [error, setError] = useState('')
   const queryClient = useQueryClient()
 
-  const addTodo = useMutation({
-    mutationFn: async () => {
-      const res = await fetch('/api/todos', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ title }),
-      })
-      
-        if (!res.ok) {
-          const error = await res.json()
-          throw new Error(error?.error || 'Failed to add todo')
-        }
+const addTodo = useMutation({
+  mutationFn: async () => {
+    const res = await fetch('/api/todos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title }), // ✅ now valid for schema
+    })
 
-      return res.json()
-    },
-      onError: (error: Error) => {
-        setError(error.message)
-      },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] })
-      setTitle('')
-    },
-  })
+    if (!res.ok) {
+      const error = await res.json()
+      throw new Error(error.error || 'Something went wrong')
+    }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    return res.json()
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['todos'] })
+    setTitle('')
+  },
+  onError: (err: any) => {
+    setError(err.message)
+  },
+})
+
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     try {
       todoSchema.parse({ title })
@@ -57,8 +57,14 @@ export default function TodoForm() {
         className="border p-2 mr-2"
         placeholder="Enter todo"
       />
-      <button className="bg-blue-500 text-white px-4 py-2">Add</button>
-      {error && <p className="text-red-500">{error}</p>}
+      <button
+        type="submit"
+        className="bg-blue-500 text-white px-4 py-2"
+        disabled={addTodo.isPending}
+      >
+        {addTodo.isPending ? 'Adding...' : 'Add'}
+      </button>
+      {error && <p className="text-red-500 mt-2">{error}</p>}
     </form>
   )
 }
