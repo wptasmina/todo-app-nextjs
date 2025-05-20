@@ -1,8 +1,4 @@
-অবশ্যই! নিচে তোমার Todo App-এর জন্য একটি সুন্দরভাবে ফরম্যাট করা `README.md` ফাইল দিয়েছি টেবিলসহ:
 
----
-
-````markdown
 # ✅ Todo App (Full-Stack)
 
 A full-stack Todo application built with **Next.js**, **TypeScript**, **Zod**, **Zustand**, **Prisma**, **MongoDB**, and **TanStack Query**.
