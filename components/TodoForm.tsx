@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-
 import { z } from 'zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { todoSchema } from '@/lib/validation'
@@ -15,10 +14,22 @@ export default function TodoForm() {
     mutationFn: async () => {
       const res = await fetch('/api/todos', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ title }),
       })
+      
+        if (!res.ok) {
+          const error = await res.json()
+          throw new Error(error?.error || 'Failed to add todo')
+        }
+
       return res.json()
     },
+      onError: (error: Error) => {
+        setError(error.message)
+      },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] })
       setTitle('')
